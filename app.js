@@ -9,10 +9,129 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-
+const { type } = require("os");
+const Choice = require("inquirer/lib/objects/choice");
+const { create } = require("domain");
+let teamMembers = []
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
+function createManager() {
+   inquirer.prompt([
+       {
+           name: "name",
+           message: "What is your name",
+           type: "input"
+       },
+       {
+           name: "id",
+           message: "What is your ID #",
+           type: "input"
+       },
+       {
+           name: "email",
+           message: "What is your Email",
+           type: "input"
+       },
+       {
+           name: "officeNumber",
+           message: "What is your office number",
+           type: "input"
+       },
+   ]).then(res => {
+       const manager = new Manager(res.name, res.id, res.email, res.officeNumber)
+       teamMembers.push(manager)
+       createTeam()
+   })
+}
+function createEngineer() {
+   inquirer.prompt([
+       {
+           name: "name",
+           message: "What is your name",
+           type: "input"
+       },
+       {
+           name: "id",
+           message: "What is your ID #",
+           type: "input"
+       },
+       {
+           name: "email",
+           message: "What is your Email",
+           type: "input"
+       },
+       {
+           name: "github",
+           message: "What is their github account name",
+           type: "input"
+       },
+   ]).then(res => {
+       const engineer = new Engineer(res.name, res.id, res.email, res.github)
+       teamMembers.push(engineer)
+       createTeam()
+   })
+}
+
+function createIntern() {
+   inquirer.prompt([
+       {
+           name: "name",
+           message: "What is your name",
+           type: "input"
+       },
+       {
+           name: "id",
+           message: "What is your ID #",
+           type: "input"
+       },
+       {
+           name: "email",
+           message: "What is your Email",
+           type: "input"
+       },
+       {
+           name: "school",
+           message: "Where did they go to school?",
+           type: "input"
+       },
+   ]).then(res => {
+       const intern = new Intern(res.name, res.id, res.email, res.school)
+       teamMembers.push(intern)
+       createTeam()
+   })
+}
+
+function createTeam() {
+    inquirer.prompt([
+        {
+            name: "memberType",
+            message: "What team member would you like to add",
+            type: "list",
+            choices: ["Engineer", "Intern", "None"]
+        }
+    ]).then(res => {
+        switch(res.memberType){
+            case "Engineer":
+                createEngineer()
+                break
+            case "Intern":
+                createIntern()
+                break
+            default:
+                buildTeam()
+        }
+    })
+}
+
+
+function buildTeam(){
+    if(!fs.existsSync(OUTPUT_DIR)){
+        fs.mkdirSync(OUTPUT_DIR)
+    }
+    fs.writeFileSync(outputPath, render(teamMembers), "utf-8" )
+}
+createManager()
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
